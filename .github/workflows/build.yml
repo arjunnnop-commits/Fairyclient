@@ -28,17 +28,32 @@ jobs:
             "platforms;android-34" \
             "build-tools;34.0.0"
 
+      - name: Locate project root
+        id: locate
+        run: |
+          MATCH=$(find "$GITHUB_WORKSPACE" -maxdepth 4 -name settings.gradle -not -path "*/node_modules/*" | head -n 1)
+          if [ -z "$MATCH" ]; then
+            echo "Could not find settings.gradle anywhere under the repo." >&2
+            exit 1
+          fi
+          DIR=$(dirname "$MATCH")
+          echo "Found project root: $DIR"
+          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
+
       - name: Generate Gradle wrapper jar
+        working-directory: ${{ steps.locate.outputs.dir }}
         run: gradle wrapper --gradle-version 8.7
 
       - name: Make gradlew executable
+        working-directory: ${{ steps.locate.outputs.dir }}
         run: chmod +x ./gradlew
 
       - name: Build debug APK
+        working-directory: ${{ steps.locate.outputs.dir }}
         run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: Fairyclient-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: ${{ steps.locate.outputs.dir }}/app/build/outputs/apk/debug/*.apk
