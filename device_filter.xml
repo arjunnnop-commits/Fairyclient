@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- MediaTek vendor ID 0x0E8D = 3725 decimal. Multiple product IDs are used
+         across chipsets for BROM / Preloader mode, so we match on vendor id only
+         and verify the exact mode in code after the device attaches. -->
+    <usb-device vendor-id="3725" />
+</resources>
